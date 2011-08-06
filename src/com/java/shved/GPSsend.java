@@ -15,13 +15,14 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
+   	
 public class GPSsend extends Activity {
 	
 	private LocationManager lm;
@@ -30,10 +31,12 @@ public class GPSsend extends Activity {
 	TextView tv2;
 	TextView tv3;
 	TextView tv4;
+	TextView tv6;
+	TextView tv7;
 	Button sbmt;
 	Button rdy;
 	EditText etmail;
-	EditText eturl;
+	EditText eturl;	
 	
     /** Called when the activity is first created. */
     @Override
@@ -44,10 +47,12 @@ public class GPSsend extends Activity {
         tv2 = (TextView)findViewById(R.id.textView2);
         tv3 = (TextView)findViewById(R.id.textView3);
         tv4 = (TextView)findViewById(R.id.textView4);
+        tv6 = (TextView)findViewById(R.id.textView6);
+        tv7 = (TextView)findViewById(R.id.textView7);
         etmail = (EditText)findViewById(R.id.editText1);
         eturl = (EditText)findViewById(R.id.editText2);
         sbmt = (Button)findViewById(R.id.button1);
-        rdy = (Button)findViewById(R.id.button2);
+        rdy = (Button)findViewById(R.id.button2);                	
         
         	sbmt.setOnClickListener (new OnClickListener()
         	{
@@ -55,11 +60,11 @@ public class GPSsend extends Activity {
         		{
         			if(etmail.length()==0)
         			{
-        				sbmt.setText("Wrong data, try again!");        				
+        				sbmt.setText("Wrong, try again!");        				
         			}
         			else if(eturl.length()==0)
         			{
-        				sbmt.setText("Wrong data, try again!");
+        				sbmt.setText("Wrong, try again!");
         			}
         			else
         			{
@@ -70,20 +75,31 @@ public class GPSsend extends Activity {
         				rdy.setEnabled(true);
         			}
         		}
-        	});  
-        	
-        	rdy.setOnClickListener(new OnClickListener()
+        	});        	        	
+    		rdy.setOnClickListener(new OnClickListener()
         	{
         		public void onClick(View v)
         		{
-        			onConn();
-        			lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);                	
+        			rdy.setEnabled(false);
+                	new CountDownTimer(60000, 1000)
+                	{
+                		public void onTick(long millisUntilFinished){
+                			tv7.setText(""+millisUntilFinished / 1000);
+                		}
+                		public void onFinish(){
+                			lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                			onConn();
+                			start();
+                		}                		
+                	}.start();                	
+        			//lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        			//onConn();        			        			                	
         		}
-        	});        	
-        	
+        	});
+    		
         lm = (LocationManager)
         		getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new NewLocationListener();       
+        locationListener = new NewLocationListener();
 
     }
     
@@ -105,14 +121,15 @@ public class GPSsend extends Activity {
 		@Override
 		public void onStatusChanged(String provider, int status, Bundle extras) {}
     }
+    
     public void onConn()
     {
-    	if(tv2.length()>0)
-    	{
+    	//if(tv2.length()>0)
+    	//{
     	String lat =(""+tv2.getText()); 
     	String lon =(""+tv3.getText());
     	String elmail =(""+etmail.getText());
-    	String url =(eturl.getText()+"?latitude="+lat+"&longtitude="+lon+"&email="+elmail);
+    	String url =(eturl.getText()+"?lat="+lat+"&long="+lon+"&email="+elmail);
     	    
     		tv4.setText(url);
 
@@ -131,6 +148,7 @@ public class GPSsend extends Activity {
     			}
     			catch(ClientProtocolException e)
     			{
+    				tv4.setText(""+e.getMessage());
     				handler.sendEmptyMessage(1);
     			}
     			catch(IOException e)
@@ -139,6 +157,6 @@ public class GPSsend extends Activity {
     				handler.sendEmptyMessage(1);
     			}
     		
-    	}
-    }
+    	//}
+    }    
 }

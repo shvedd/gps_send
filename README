@@ -1,4 +1,5 @@
 #################################################
-This app retrieves current GPS location and sends
-it to server.
+Application retrieves current GPS location and sends 
+longtitude,latitude and email data to the server.
+Works through 3g or GPRS.
 #################################################
